@@ -1,14 +1,9 @@
 import logging
 import httpx
+import random
 from typing import Any
 from .types.user import User
-
-
-logging.basicConfig(
-    level=logging.DEBUG,
-    format="%(asctime)s %(levelname)s %(name)s %(message)s",
-    datefmt="%Y-%m-%d %H:%M:%S",
-)
+from .types.message import SendMessage
 
 
 class VkClient:
@@ -16,10 +11,10 @@ class VkClient:
         self.log = logging.getLogger("VkClient")
 
         # POST https://api.vk.com/method/<METHOD>?<PARAMS> HTTP/1.1
-        self.api_url = "https://api.vk.com/method"
-        self._token = token
+        self.api_url: str = "https://api.vk.com/method"
+        self.__token: str = token
 
-    async def _call_api(
+    async def __call_api(
         self,
         method: str,
         params: dict[Any, Any],
@@ -27,7 +22,7 @@ class VkClient:
         headers: dict[str, str] = {},
     ):
         async with httpx.AsyncClient() as client:
-            headers["Authorization"] = f"Bearer {self._token}"
+            headers["Authorization"] = f"Bearer {self.__token}"
 
             response: httpx.Response | None = None
             if request_type == "get":
@@ -40,24 +35,32 @@ class VkClient:
                 )
             if response is None:
                 raise ValueError("Request type must be 'get' or 'post'")
+            self.log.debug(f"response = {response.json()}")
             return response.json()
 
-    async def start_polling(self, group_id: int):
-        self.log.debug(await self._get_long_poll_server(group_id))
-        pass
-
     async def _get_long_poll_server(self, group_id: int):
-        response = await self._call_api(
+        response = await self.__call_api(
             "groups.getLongPollServer",
             {"group_id": group_id, "v": "5.131"},
         )
-        self.log.debug(response)
         return response["response"]
 
     async def get_user(self, user_id: int) -> User:
-        response = await self._call_api(
+        response = await self.__call_api(
             "users.get",
             {"user_ids": user_id, "v": "5.131"},
         )
-        self.log.debug(response)
         return User(**response["response"][0])
+
+    async def send_message(self, msg: SendMessage):
+        await self.__call_api(
+            "messages.send",
+            {
+                "user_id": msg.message_event.object.message.from_id,
+                "random_id": random.getrandbits(31) * random.choice([-1, 1]),
+                "message": msg.text,
+                "v": "5.131",
+            },
+            request_type="post",
+        )
+        # return response["response"]
