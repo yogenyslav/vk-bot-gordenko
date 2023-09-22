@@ -4,9 +4,11 @@ from .types.message import MessageNewEvent
 
 
 class Handler:
-    def __init__(self, func: Callable, text: str):
+    def __init__(self, func: Callable, text: str | None):
         self.func = func
         self.text = text
+        if text is None:
+            raise ValueError("no filters specified")
 
     async def check(self, event: Event):
         if isinstance(event, MessageNewEvent):

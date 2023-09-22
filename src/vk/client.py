@@ -53,14 +53,16 @@ class VkClient:
         return User(**response["response"][0])
 
     async def send_message(self, msg: SendMessage):
+        params = {
+            "user_id": msg.message_event.object.message.from_id,
+            "random_id": random.getrandbits(31) * random.choice([-1, 1]),
+            "message": msg.text,
+            "v": "5.131",
+        }
+        if msg.reply_markup:
+            params["keyboard"] = msg.reply_markup.model_dump_json()
         await self.__call_api(
             "messages.send",
-            {
-                "user_id": msg.message_event.object.message.from_id,
-                "random_id": random.getrandbits(31) * random.choice([-1, 1]),
-                "message": msg.text,
-                "v": "5.131",
-            },
+            params=params,
             request_type="post",
         )
-        # return response["response"]

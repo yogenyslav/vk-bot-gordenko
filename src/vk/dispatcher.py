@@ -56,8 +56,6 @@ class Dispatcher:
     async def __handle_update(self, update: Event):
         for router in self.routers:
             handle_result = await router.handle(update)
-            self.log.debug(type(handle_result))
-            self.log.debug(f"handle_result = {handle_result}")
             if handle_result:
                 if isinstance(handle_result, SendMessage):
                     await self.vk_client.send_message(handle_result)
