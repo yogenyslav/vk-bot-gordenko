@@ -14,7 +14,7 @@ class Router:
                 return await handler.handle(event)
         return None
 
-    def __call__(self, text: str | None = None):
+    def __call__(self, text: str | list[str] | None = None):
         def wrapper(func):
             self.handlers.append(Handler(func, text))
             return func
