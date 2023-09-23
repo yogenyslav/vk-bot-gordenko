@@ -8,7 +8,7 @@ from .types.message import SendMessage
 
 class VkClient:
     def __init__(self, token: str):
-        self.log = logging.getLogger("VkClient")
+        # self.log = logging.getLogger("VkClient")
 
         # POST https://api.vk.com/method/<METHOD>?<PARAMS> HTTP/1.1
         self.api_url: str = "https://api.vk.com/method"
@@ -35,7 +35,7 @@ class VkClient:
                 )
             if response is None:
                 raise ValueError("Request type must be 'get' or 'post'")
-            self.log.debug(f"response = {response.json()}")
+            # self.log.debug(f"response = {response.json()}")
             return response.json()
 
     async def _get_long_poll_server(self, group_id: int):

@@ -15,8 +15,6 @@ class Handler:
                     return True
             elif event.object.message.text == self.text:
                 return True
-            else:
-                return True
 
         return False
 
