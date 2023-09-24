@@ -7,12 +7,20 @@ from .types.message import SendMessage
 
 
 class VkClient:
+    instance = None
+
     def __init__(self, token: str):
-        # self.log = logging.getLogger("VkClient")
+        self.log = logging.getLogger("VkClient")
 
         # POST https://api.vk.com/method/<METHOD>?<PARAMS> HTTP/1.1
         self.api_url: str = "https://api.vk.com/method"
         self.__token: str = token
+
+    def __new__(cls, *args, **kwargs):
+        """Singleton pattern"""
+        if cls.instance is None:
+            cls.instance = super(VkClient, cls).__new__(cls)
+        return cls.instance
 
     async def __call_api(
         self,
@@ -54,7 +62,7 @@ class VkClient:
 
     async def send_message(self, msg: SendMessage):
         params = {
-            "user_id": msg.message_event.object.message.from_id,
+            "user_id": msg.user_id,
             "random_id": random.getrandbits(31) * random.choice([-1, 1]),
             "message": msg.text,
             "v": "5.131",

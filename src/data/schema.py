@@ -6,8 +6,3 @@ class Task(BaseModel):
     answer: str
     options: list[str]
     docs: str
-
-
-class Test(BaseModel):
-    category: str
-    task: Task

@@ -16,8 +16,10 @@ async def main():
 
     from router.commands import router as commands_router
     from router.solve import router as solve_router
+    from router.admin import router as admin_router
 
     dp.include_router(commands_router)
+    dp.include_router(admin_router)
     dp.include_router(solve_router)
 
     log.debug("Registered routers")

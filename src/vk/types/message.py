@@ -33,9 +33,10 @@ class MessageNewObject(BaseModel):
 
 
 class SendMessage(BaseModel):
-    message_event: "MessageNewEvent" = Field(...)
+    user_id: int = Field(...)
+    # message_event: "MessageNewEvent" = Field(...)
     text: str = Field(...)
-    reply_markup: Optional["ReplyMarkup"] = Field(None)
+    reply_markup: Optional["ReplyMarkup"] = None
 
 
 class ReplyMarkupButtonAction(BaseModel):
@@ -62,6 +63,11 @@ class MessageNewEvent(GroupEvent):
     from_user: User = Field(...)
 
     async def answer(
-        self, text: str, reply_markup: ReplyMarkup | None = None
+        self,
+        text: str,
+        reply_markup: ReplyMarkup | None = None,
+        user_id: int | None = None,
     ) -> SendMessage:
-        return SendMessage(message_event=self, text=text, reply_markup=reply_markup)
+        if user_id is None:
+            user_id = self.object.message.from_id
+        return SendMessage(text=text, reply_markup=reply_markup, user_id=user_id)

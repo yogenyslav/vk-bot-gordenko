@@ -9,7 +9,7 @@ router = Router()
 log = get_logger(__name__)
 
 
-@router("Начать")
+@router(text="Начать")
 async def start(event: MessageNewEvent):
     user_id = event.from_user.id
     if user_id in state.keys():
@@ -26,14 +26,14 @@ async def start(event: MessageNewEvent):
     )
 
 
-@router("Решить тесты")
+@router(text="Решить тесты")
 async def solve_tests(event: MessageNewEvent):
     user_id = event.from_user.id
     log.debug(f"User {user_id} is choosing category")
     try:
         if (
             state[user_id]["action"] == "started"
-            or state[user_id]["action"].split(",")[0] == "solving"
+            or state[user_id]["action"] == "solved"
         ):
             state[user_id]["action"] = "choosing_category"
             return await event.answer(
@@ -44,7 +44,7 @@ async def solve_tests(event: MessageNewEvent):
         return
 
 
-@router("Статистика")
+@router(text="Статистика")
 async def statistics(event: MessageNewEvent):
     user_id = event.from_user.id
 

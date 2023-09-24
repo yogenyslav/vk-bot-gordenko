@@ -1,3 +1,4 @@
+from random import choice
 from vk.router import Router
 from vk.types.message import MessageNewEvent
 from data.fake_db import test_categories, tests, state
@@ -16,23 +17,18 @@ async def process_category(event: MessageNewEvent):
         if state[user_id]["action"] == "choosing_category":
             category = event.object.message.text
             if category in tests.keys():
-                task = tests[category]
-                response = f"{task.text}"
+                task = choice(tests[category])
                 state[user_id]["action"] = f"solving,{category}"
+                state[user_id]["task"] = task
                 return await event.answer(
-                    text=response,
+                    text=task.text,
                     reply_markup=kb.task_options(task),
                 )
     except Exception:
         return
 
 
-answer_options = []
-for task in tests.values():
-    answer_options.extend(task.options)
-
-
-@router(text=answer_options)
+@router(text="test_answer")
 async def process_task_answer(event: MessageNewEvent):
     user_id = event.from_user.id
     try:
@@ -41,7 +37,8 @@ async def process_task_answer(event: MessageNewEvent):
             f"User {user_id} has answered '{event.object.message.text.lower()}' to task {tests[category]}"
         )
         if action == "solving":
-            task = tests[category]
+            task = state[user_id]["task"]
+            state[user_id]["action"] = "solved"
             if task.answer.lower() != event.object.message.text.lower():
                 if category in state[user_id]["mistakes"].keys():
                     state[user_id]["mistakes"][category] += 1

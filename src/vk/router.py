@@ -14,9 +14,11 @@ class Router:
                 return await handler.handle(event)
         return None
 
-    def __call__(self, text: str | list[str] | None = None):
+    def __call__(
+        self, text: str | list[str] | None = None, starts_with: str | None = None
+    ):
         def wrapper(func):
-            self.handlers.append(Handler(func, text))
+            self.handlers.append(Handler(func, text=text, starts_with=starts_with))
             return func
 
         return wrapper

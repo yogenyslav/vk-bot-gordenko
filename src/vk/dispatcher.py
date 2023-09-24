@@ -35,6 +35,7 @@ class Dispatcher:
                     ts = response["ts"]
 
                     await self.__register_updates(response["updates"])
+                    await self.__handle_pending_updates()
                 except httpx.ReadTimeout:
                     continue
                 except Exception as e:
@@ -51,7 +52,6 @@ class Dispatcher:
                     asyncio.create_task(
                         self.__handle_update(MessageNewEvent(**update, from_user=user))
                     )
-        await self.__handle_pending_updates()
 
     async def __handle_update(self, update: Event):
         for router in self.routers:
